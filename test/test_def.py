@@ -1,6 +1,6 @@
 from mako import lookup
 from mako.template import Template
-from mako.testing.assertions import assert_raises
+from mako.testing.assertions import assert_raises, assert_raises_message
 from mako.testing.assertions import eq_
 from mako.testing.fixtures import TemplateTest
 from mako.testing.helpers import flatten_result
@@ -60,6 +60,23 @@ class DefTest(TemplateTest):
         eq_(
             template.render(one=1, two=2, three=(3,), six=6).strip(),
             """look at all these args: one two three four 5 seven""",
+        )
+
+    def test_def_py3k_kwonly_as_pos(self):
+        """Test that using position arg for kwonly argument fails."""
+        template = Template(
+            """
+        <%def name="kwonly(one, *, two)">
+            look at all these args: ${one} ${two}"""
+            """
+        </%def>
+
+        ${kwonly('one', 'two')}"""
+        )
+        assert_raises_message(
+            TypeError,
+            "takes 1 positional argument but 2 were given",
+            template.render,
         )
 
     def test_inter_def(self):

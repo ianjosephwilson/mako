@@ -172,6 +172,14 @@ class FunctionDecl:
             else:
                 namedecls.append(name)
 
+        # A bare `*` immediately followed by `**kwargs` is not valid python.
+        # Ie. Using a bare `*` without any named keyword arguments.
+        # A bare `*` and `*args` together is not valid python.
+        # Ie. Using variable positional arguments already means everything
+        # following that argument must be keyword only.
+        if not as_call and kwargnames and not self.varargs:
+            namedecls.append("*")
+
         # Positional arguments
         if self.varargs:
             namedecls.append("*" + argnames.pop(0))
